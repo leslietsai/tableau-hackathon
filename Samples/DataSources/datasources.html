@@ -11,7 +11,6 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
-    <link rel="stylesheet" href="style.css">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
 
     <!-- Extensions Library (this will be hosted on a CDN eventually) -->
@@ -21,13 +20,25 @@
     <script src="./dataSources.js"></script>
   </head>
 
-  <body>
-    <h1>Speech Commands</h1>
-    <p class="hints"></p>
-    <p>Supported commands</p>
-    <p class="supported-commands"></p>
-    <div>
-        <p class="output"><em>...diagnostic messages</em></p>
+  <body class="text-center">
+    <div class="page-header text-center">
+        <h1>Speech Commands</h1>
+        
+    </div>
+    
+    <div class="container">
+        <h4 class="hints"><br><br></h4 >
+        <p>Supported commands:<br></p>
+        <div class="row">
+            <div class="col">
+                <div>reset filters<br>filter by <i>filter name filter item</i><br>show caption<br>view data<br><div>
+            </div>
+        </div>
+    <div class="row">
+        <div class="col text-center">
+        <h4 class="output"><em>...click to activate listening...</em></h4>
+    </div>
+    </div>
     </div>
   </body>
 </html>
