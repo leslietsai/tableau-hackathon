@@ -35,6 +35,7 @@
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
+        summaryTable();
         diagnostic.textContent = "Recording";
         diagnostic.style.color = "red";
         
@@ -177,6 +178,47 @@
         speak(worksheet.name);
       })
       Promise.all(promises).then(function(results){});
+  }
+
+   function summaryTable() {
+    console.log("Trying to log the summaryTable");
+
+      let summaryPromises = [];
+      // To get dataSource info, first get the dashboard.
+      const dashboard = tableau.extensions.dashboardContent.dashboard;
+      dashboard.worksheets.forEach(function(worksheet) {
+        summaryPromises.push(worksheet.getSummaryDataAsync());
+      });
+
+       Promise.all(summaryPromises).then(function (fetchResults) {
+        fetchResults.forEach(function (dataTable) {
+
+          console.log(dataTable.name);
+          $("#summary-table").append("Table name: ", dataTable.name); 
+          $("#summary-table").append('<br> <table class="table"> <thead>');    
+          console.log(dataTable.data); 
+          for (var i = 0; i < dataTable.columns.length; i++) {
+              $("#summary-table").append('<th> ' + dataTable.columns[i]._fieldName + '</th>');     
+          }
+
+          $("#summary-table").append("</thead>   <tbody>"); 
+
+          console.log(dataTable.data[0][0]);
+           for (var i = 0; i < dataTable.data.length; i++) {
+              $("#summary-table").append("<tr>"); 
+
+              for (var j = 0; j < 7; j++) {
+                $("#summary-table").append('<td>'+  dataTable.data[i][j]._formattedValue + '</td>');     
+              $("#summary-table").append("</tr>"); 
+
+
+            }
+          $("#summary-table").append('</thead>');    
+
+          }
+          });
+        });
+      Promise.all(summaryPromises).then(function(results){});
   }
 
   function jsUcfirst(string) 
