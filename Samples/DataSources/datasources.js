@@ -34,7 +34,17 @@
     document.body.onclick = function() {
       recognition.start();
       console.log('Ready to receive a command.');
+      let promises = [];
+      // To get dataSource info, first get the dashboard.
+      const dashboard = tableau.extensions.dashboardContent.dashboard;
 
+      // Then loop through each worksheet and get its dataSources, save promise for later.
+      dashboard.worksheets.forEach(function (worksheet) {
+        if (worksheet.name) {
+          promises.push(worksheet.clearFilterAsync("College"));
+        }
+      });
+      Promise.all(promises).then(function(results){});
     } 
 
     recognition.onresult = function(event) {
@@ -66,18 +76,9 @@
     recognition.onerror = function(event) {
       diagnostic.textContent = 'Error occurred in recognition: ' + event.error;
     }
-      let promises = [];
-      // To get dataSource info, first get the dashboard.
-      const dashboard = tableau.extensions.dashboardContent.dashboard;
+      
 
-      // Then loop through each worksheet and get its dataSources, save promise for later.
-      dashboard.worksheets.forEach(function (worksheet) {
-        if (worksheet.name) {
-          promises.push(worksheet.selectMarksAsync("College", ["Business"], tableau.SelectionUpdateType.REPLACE));
-        }
-      });
-
-      Promise.all(promises).then(function(results){})
+      
     }, function (err) {
       // Something went wrong in initialization.
       console.log('Error while Initializing: ' + err.toString());
