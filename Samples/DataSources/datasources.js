@@ -5,7 +5,7 @@
 
   $(document).ready(function () {
     tableau.extensions.initializeAsync().then(function () {
-      speak("Welcome to your workbook");
+      speak("Welcome to your dashboard");
       var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
@@ -59,7 +59,7 @@
         if (command.includes("reset") && command.includes("filter")) {
           resetFilters();
         }
-        else if (command.includes("select") || command.includes("remove")) {
+        else if ((command.includes("select") || command.includes("remove")) && command.includes("from")) {
           filterBy(command);
         }
         else if(command.includes("list worksheet")) {
@@ -120,23 +120,29 @@
   }
 
   function filterBy(command) {
+    //select VALUE from FILTER
+    //remove VALUE from FILTER
     var commandArray = command.split(" ");
     var updateTypeInput = commandArray[0];
-    var fieldName = commandArray[1];
-    var values = commandArray.slice(1);
-    var speech;
+    var fromIndex = commandArray.indexOf("from");
+    var fieldName = commandArray.slice(fromIndex + 1);
+    var filterItems = commandArray.slice(1, fromIndex);
     if (updateTypeInput == "remove") {
       var updateType = "remove";
-      speech = "removed " + commandArray[2] + " from " + commandArray[1];
     } 
     else if (updateTypeInput == "select") {
       var updateType = "add";
-      speech = "added " + commandArray[2] + " to " + commandArray[1];
     }
 
-    fieldName = jsUcfirst(fieldName);
+    var finalFieldName = [];
+    fieldName.forEach(
+      function(name){
+        finalFieldName.push(jsUcfirst(name))
+      });
+    finalFieldName = finalFieldName.join(" ");
+
     var finalValues = [];
-    values.forEach(
+    filterItems.forEach(
       function(value){
         finalValues.push(jsUcfirst(value));
       }
@@ -147,12 +153,18 @@
     const dashboard = tableau.extensions.dashboardContent.dashboard;
 
     dashboard.worksheets.forEach(function(worksheet) {
-    promises.push(worksheet.applyFilterAsync(fieldName,finalValues,updateType,false));
+    promises.push(worksheet.applyFilterAsync(finalFieldName,finalValues,updateType,false));
 
     })
 
     Promise.all(promises).then(function(results){});
-    speak(speech);
+    if (updateTypeInput == "remove") {
+        speak("removed " + finalValues + " from " + finalFieldName);
+    }
+    if (updateTypeInput == "select") {
+        speak("selected " + finalValues + " from " + finalFieldName);
+    }
+    
 
   }
 
