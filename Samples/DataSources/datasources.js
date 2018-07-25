@@ -26,14 +26,14 @@
       var hints = document.querySelector('.hints');
 
       var colorHTML= '';
-      colors.forEach(function(v, i, a){
-        colorHTML += '<span style="background-color:' + v + ';"> ' + v + ' </span>';
-      });
-      hints.innerHTML = 'Tap/click then say a command. Try '+ colorHTML + '.';
+      hints.innerHTML = 'Tap/click then say a command.';
+
+      var supportedCommands = ['reset filter']
 
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
+        bg.style.backgroundColor = "red";
         
       } 
 
@@ -60,6 +60,7 @@
 
       recognition.onspeechend = function() {
         recognition.stop();
+        bg.style.backgroundColor = "white";
       }
 
       recognition.onnomatch = function(event) {
