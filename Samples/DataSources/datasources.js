@@ -35,7 +35,6 @@
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
-        summaryTable();
         diagnostic.textContent = "Recording";
         diagnostic.style.color = "red";
         
@@ -65,6 +64,9 @@
         }
         else if(command.includes("list worksheet")) {
           listWorksheets();
+        }
+        else if (command.includes("summary table")) {
+          toggleSummaryTable(command);
         }
       }
 
@@ -219,6 +221,22 @@
           });
         });
       Promise.all(summaryPromises).then(function(results){});
+
+
+
+  }
+
+  function toggleSummaryTable(string) {
+    var commandArray = string.split(" ");
+    if (commandArray[0] == "show") {
+        summaryTable();
+        speak("showing table");
+    }
+    else {
+      $("#summary-table").hide();
+      speak("hiding table");
+
+    }
   }
 
   function jsUcfirst(string) 
