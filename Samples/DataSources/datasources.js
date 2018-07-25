@@ -5,6 +5,7 @@
 
   $(document).ready(function () {
     tableau.extensions.initializeAsync().then(function () {
+      speak("Welcome to your workbook");
       var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
@@ -33,8 +34,7 @@
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
-        bg.style.backgroundColor = "red";
-        
+        filterBy("remove college education");  
       } 
 
       recognition.onresult = function(event) {
@@ -55,6 +55,9 @@
 
         if (command.includes("reset") && command.includes("filter")) {
           resetFilters();
+        }
+        else if (command.includes("select") || command.includes("remove")) {
+          filterBy(command);
         }
       }
 
@@ -101,11 +104,52 @@
         let filters = worksheet.getFiltersAsync().then(function(filters) {
           filters.forEach(function(filter) {
             var field = filter.fieldName;
+            console.log(field);
             promises.push(worksheet.clearFilterAsync(field));
             
         });
         });
       })
       Promise.all(promises).then(function(results){});
+      speak("Filters reset");
+  }
+
+  function filterBy(command) {
+    var commandArray = command.split(" ");
+    var updateTypeInput = commandArray[0];
+    var fieldName = commandArray[1];
+    var values = commandArray.slice(1);
+
+    if (updateTypeInput == "remove") {
+      var updateType = "remove";
+    } 
+    else if (updateTypeInput == "select") {
+      var updateType = "add";
+    }
+
+    fieldName = jsUcfirst(fieldName);
+    var finalValues = [];
+    values.forEach(
+      function(value){
+        finalValues.push(jsUcfirst(value));
+      }
+    );
+
+    let promises = [];
+      // To get dataSource info, first get the dashboard.
+    const dashboard = tableau.extensions.dashboardContent.dashboard;
+
+    dashboard.worksheets.forEach(function(worksheet) {
+    promises.push(worksheet.applyFilterAsync(fieldName,finalValues,updateType,false));
+
+    })
+
+    Promise.all(promises).then(function(results){});
+
+  }
+
+  function jsUcfirst(string) 
+  {
+      return string.charAt(0).toUpperCase() + string.slice(1);
   }
 })();
