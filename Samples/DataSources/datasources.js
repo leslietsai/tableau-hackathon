@@ -5,6 +5,7 @@
 
   $(document).ready(function () {
     tableau.extensions.initializeAsync().then(function () {
+      speak("Welcome to your dashboard");
       var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
@@ -34,7 +35,6 @@
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
-        
       } 
 
       recognition.onresult = function(event) {
@@ -52,7 +52,6 @@
 
         diagnostic.textContent = 'Result received: ' + command+ '.';
         bg.style.backgroundColor = command;
-
         if (command.includes("reset") && command.includes("filter")) {
           resetFilters();
         }
@@ -76,6 +75,21 @@
     });
   });
 
+  function speak(command) {
+
+        var synth = window.speechSynthesis;
+        var utterThis = new SpeechSynthesisUtterance(command);
+        utterThis.onend = function (event) {
+          console.log('SpeechSynthesisUtterance.onend');
+        }
+        utterThis.onerror = function (event) {
+            console.error('SpeechSynthesisUtterance.onerror');
+        }
+        utterThis.pitch = 1;
+        utterThis.rate = 1;
+        synth.speak(utterThis);
+  }
+
   function resetFilters() {
       let promises = [];
       // To get dataSource info, first get the dashboard.
@@ -91,5 +105,6 @@
         });
       })
       Promise.all(promises).then(function(results){});
+      speak("Reset filters");
   }
 })();
