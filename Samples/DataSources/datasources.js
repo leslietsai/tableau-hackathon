@@ -10,8 +10,8 @@
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
-      var colors = [ 'aqua' , 'azure' , 'beige', 'bisque', 'black', 'blue', 'brown', 'chocolate', 'coral', 'crimson', 'cyan', 'fuchsia', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'indigo', 'ivory', 'khaki', 'lavender', 'lime', 'linen', 'magenta', 'maroon', 'moccasin', 'navy', 'olive', 'orange', 'orchid', 'peru', 'pink', 'plum', 'purple', 'red', 'salmon', 'sienna', 'silver', 'snow', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'white', 'yellow'];
-      var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
+      var commands = [ 'reset filters' , 'filter by <filter name> <filter item>' , 'go to <sheet name>', 'show caption', 'view data'];
+      var grammar = '#JSGF V1.0; grammar commands; public <command> = ' + commands.join(' | ') + ' ;'
 
       var recognition = new SpeechRecognition();
       var speechRecognitionList = new SpeechGrammarList();
@@ -26,15 +26,17 @@
       var bg = document.querySelector('html');
       var hints = document.querySelector('.hints');
 
-      var colorHTML= '';
-      hints.innerHTML = 'Tap/click then say a command.';
-
-      var supportedCommands = ['reset filter']
+      var commandHTML= '';
+      commands.forEach(function(v, i, a){
+        commandHTML += '<span style="background-command:' + v + ';"> ' + v + ' </span>';
+      });
+      hints.innerHTML = 'Click, then say a command to affect the dashboard';
 
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
-        bg.style.backgroundColor = "red";
+        diagnostic.textContent = "Recording";
+        diagnostic.style.color = "red";
         
       } 
 
@@ -52,20 +54,23 @@
         var command = event.results[last][0].transcript;
 
         diagnostic.textContent = 'Result received: ' + command+ '.';
-        bg.style.backgroundColor = command;
+        //bg.style.backgroundcommand = command;
 
         if (command.includes("reset") && command.includes("filter")) {
           resetFilters();
+        }
+        else if (command.includes("select") || command.includes("remove")) {
+          filterBy(command);
         }
       }
 
       recognition.onspeechend = function() {
         recognition.stop();
-        bg.style.backgroundColor = "white";
+        diagnostic.style.color = "black";
       }
 
       recognition.onnomatch = function(event) {
-        diagnostic.textContent = "I didn't recognise that color.";
+        diagnostic.textContent = "I didn't recognise that command.";
       }
 
       recognition.onerror = function(event) {
@@ -109,5 +114,44 @@
       })
       Promise.all(promises).then(function(results){});
       speak("Filters reset");
+  }
+
+  function filterBy(command) {
+    var commandArray = command.split(" ");
+    var updateTypeInput = commandArray[0];
+    var fieldName = commandArray[1];
+    var values = commandArray.slice(1);
+
+    if (updateTypeInput == "remove") {
+      var updateType = "remove";
+    } 
+    else if (updateTypeInput == "select") {
+      var updateType = "add";
+    }
+
+    fieldName = jsUcfirst(fieldName);
+    var finalValues = [];
+    values.forEach(
+      function(value){
+        finalValues.push(jsUcfirst(value));
+      }
+    );
+
+    let promises = [];
+      // To get dataSource info, first get the dashboard.
+    const dashboard = tableau.extensions.dashboardContent.dashboard;
+
+    dashboard.worksheets.forEach(function(worksheet) {
+    promises.push(worksheet.applyFilterAsync(fieldName,finalValues,updateType,false));
+
+    })
+
+    Promise.all(promises).then(function(results){});
+
+  }
+
+  function jsUcfirst(string) 
+  {
+      return string.charAt(0).toUpperCase() + string.slice(1);
   }
 })();
