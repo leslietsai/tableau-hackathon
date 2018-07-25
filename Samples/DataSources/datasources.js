@@ -112,7 +112,7 @@
         });
       })
       Promise.all(promises).then(function(results){});
-      speak("filters have been reset")
+      speak("filters have been reset");
   }
 
   function filterBy(command) {
@@ -120,12 +120,14 @@
     var updateTypeInput = commandArray[0];
     var fieldName = commandArray[1];
     var values = commandArray.slice(1);
-
+    var speech;
     if (updateTypeInput == "remove") {
       var updateType = "remove";
+      speech = "removed " + commandArray[2] + " from " + commandArray[1];
     } 
     else if (updateTypeInput == "select") {
       var updateType = "add";
+      speech = "added " + commandArray[2] + " to " + commandArray[1];
     }
 
     fieldName = jsUcfirst(fieldName);
@@ -146,6 +148,7 @@
     })
 
     Promise.all(promises).then(function(results){});
+    speak(speech);
 
   }
 
