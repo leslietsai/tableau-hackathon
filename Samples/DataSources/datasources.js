@@ -58,6 +58,9 @@
         if (command.includes("reset") && command.includes("filter")) {
           resetFilters();
         }
+        else if (command.includes("select") || command.includes("remove")) {
+          filterBy(command);
+        }
       }
 
       recognition.onspeechend = function() {
@@ -109,5 +112,44 @@
         });
       })
       Promise.all(promises).then(function(results){});
+  }
+
+  function filterBy(command) {
+    var commandArray = command.split(" ");
+    var updateTypeInput = commandArray[0];
+    var fieldName = commandArray[1];
+    var values = commandArray.slice(1);
+
+    if (updateTypeInput == "remove") {
+      var updateType = "remove";
+    } 
+    else if (updateTypeInput == "select") {
+      var updateType = "add";
+    }
+
+    fieldName = jsUcfirst(fieldName);
+    var finalValues = [];
+    values.forEach(
+      function(value){
+        finalValues.push(jsUcfirst(value));
+      }
+    );
+
+    let promises = [];
+      // To get dataSource info, first get the dashboard.
+    const dashboard = tableau.extensions.dashboardContent.dashboard;
+
+    dashboard.worksheets.forEach(function(worksheet) {
+    promises.push(worksheet.applyFilterAsync(fieldName,finalValues,updateType,false));
+
+    })
+
+    Promise.all(promises).then(function(results){});
+
+  }
+
+  function jsUcfirst(string) 
+  {
+      return string.charAt(0).toUpperCase() + string.slice(1);
   }
 })();
