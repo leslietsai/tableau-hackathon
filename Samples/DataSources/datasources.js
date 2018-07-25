@@ -109,5 +109,6 @@
         });
       })
       Promise.all(promises).then(function(results){});
+      speak("filters have been reset")
   }
 })();
