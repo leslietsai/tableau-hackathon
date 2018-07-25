@@ -34,7 +34,6 @@
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
-        filterBy("remove college education");  
       } 
 
       recognition.onresult = function(event) {
@@ -104,7 +103,6 @@
         let filters = worksheet.getFiltersAsync().then(function(filters) {
           filters.forEach(function(filter) {
             var field = filter.fieldName;
-            console.log(field);
             promises.push(worksheet.clearFilterAsync(field));
             
         });
