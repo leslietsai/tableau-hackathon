@@ -34,7 +34,8 @@
       document.body.onclick = function() {
         recognition.start();
         console.log('Ready to receive a command.');
-        bg.style.backgroundcommand = "red";
+        diagnostic.textContent = "Recording";
+        diagnostic.style.color = "red";
         
       } 
 
@@ -61,7 +62,7 @@
 
       recognition.onspeechend = function() {
         recognition.stop();
-        bg.style.backgroundcommand = "white";
+        diagnostic.style.color = "black";
       }
 
       recognition.onnomatch = function(event) {
