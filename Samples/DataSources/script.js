@@ -28,7 +28,8 @@ hints.innerHTML = 'Tap/click then say a color to change the background color of 
 document.body.onclick = function() {
   recognition.start();
   console.log('Ready to receive a color command.');
-}
+
+} 
 
 recognition.onresult = function(event) {
   // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
@@ -46,6 +47,14 @@ recognition.onresult = function(event) {
   diagnostic.textContent = 'Result received: ' + color + '.';
   bg.style.backgroundColor = color;
   console.log('Confidence: ' + event.results[0][0].confidence);
+  if (color == 'new worksheet' || true) {
+    $(".tabAuthNewWorksheetIcon").click();
+    tableau.extensions.initializeAsync().then(function () 
+    {
+      tableau.extensions.getActiveTablesAsync();
+
+    })
+  }
 }
 
 recognition.onspeechend = function() {
