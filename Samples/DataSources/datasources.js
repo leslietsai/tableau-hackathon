@@ -77,6 +77,21 @@
     });
   });
 
+  function speak(command) {
+
+        var synth = window.speechSynthesis;
+        var utterThis = new SpeechSynthesisUtterance(command);
+        utterThis.onend = function (event) {
+          console.log('SpeechSynthesisUtterance.onend');
+        }
+        utterThis.onerror = function (event) {
+            console.error('SpeechSynthesisUtterance.onerror');
+        }
+        utterThis.pitch = 1;
+        utterThis.rate = 1;
+        synth.speak(utterThis);
+  }
+
   function resetFilters() {
       let promises = [];
       // To get dataSource info, first get the dashboard.
