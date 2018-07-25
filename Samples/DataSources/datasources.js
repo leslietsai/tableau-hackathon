@@ -10,7 +10,7 @@
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
-      var commands = [ 'reset filters' , 'filter by <filter name> <filter item>' , 'go to <sheet name>', 'show caption', 'view data'];
+      var commands = [ 'reset filters' , 'filter by &lt;filter name&lt; &lt;filter item&lt;' , 'go to <sheet name>', 'show caption', 'view data'];
       var grammar = '#JSGF V1.0; grammar commands; public <command> = ' + commands.join(' | ') + ' ;'
 
       var recognition = new SpeechRecognition();
@@ -61,6 +61,9 @@
         }
         else if (command.includes("select") || command.includes("remove")) {
           filterBy(command);
+        }
+        else if(command.includes("list worksheet")) {
+          listWorksheets();
         }
       }
 
@@ -148,6 +151,17 @@
 
     Promise.all(promises).then(function(results){});
 
+  }
+
+  function listWorksheets() {
+      let promises = [];
+      // To get dataSource info, first get the dashboard.
+      const dashboard = tableau.extensions.dashboardContent.dashboard;
+      speak("Your worksheets are ");
+      dashboard.worksheets.forEach(function(worksheet) {
+        speak(worksheet.name);
+      })
+      Promise.all(promises).then(function(results){});
   }
 
   function jsUcfirst(string) 
