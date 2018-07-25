@@ -5,7 +5,6 @@
 
   $(document).ready(function () {
     tableau.extensions.initializeAsync().then(function () {
-      speak("Welcome to your workbook");
       var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
@@ -109,7 +108,6 @@
         });
       })
       Promise.all(promises).then(function(results){});
-      speak("Filters reset");
   }
 
   function filterBy(command) {
