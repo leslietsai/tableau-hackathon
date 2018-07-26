@@ -54,7 +54,8 @@
         var last = event.results.length - 1;
         var command = event.results[last][0].transcript;
 
-        if (!listening) {
+        if (listening == false) {
+          diagnostic.textContent = 'Result received: ' + command+ '.';
           if(command.includes("stuff")) {
             listening = true;
             speak("Listening");
