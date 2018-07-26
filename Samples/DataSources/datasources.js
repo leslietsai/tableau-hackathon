@@ -12,6 +12,7 @@
 
       var commands = [ 'reset filters' , 'filter by &lt;filter name&lt; &lt;filter item&lt;' , 'go to <sheet name>', 'show caption', 'view data'];
       var grammar = '#JSGF V1.0; grammar commands; public <command> = ' + commands.join(' | ') + ' ;'
+      var listening = false;
 
       var recognition = new SpeechRecognition();
       var speechRecognitionList = new SpeechGrammarList();
@@ -32,12 +33,13 @@
       });
       hints.innerHTML = 'Click, then say a command to affect the dashboard';
 
+      recognition.start();
+      console.log('Ready to receive a command.');
+
+
+
       document.body.onclick = function() {
-        recognition.start();
-        console.log('Ready to receive a command.');
-        diagnostic.textContent = "Recording";
-        diagnostic.style.color = "red";
-        
+
       } 
 
       recognition.onresult = function(event) {
@@ -49,24 +51,38 @@
         // These also have getters so they can be accessed like arrays.
         // The [0] returns the SpeechRecognitionAlternative at position 0.
         // We then return the transcript property of the SpeechRecognitionAlternative object
-
         var last = event.results.length - 1;
         var command = event.results[last][0].transcript;
 
-        diagnostic.textContent = 'Result received: ' + command+ '.';
-        //bg.style.backgroundcommand = command;
+        if (!listening) {
+          if(command.includes("stuff")) {
+            listening = true;
+            speak("Listening");
+          }
+          recognition.start();
+        }
+        else {
+          
+          diagnostic.textContent = 'Result received: ' + command+ '.';
+          //bg.style.backgroundcommand = command;
 
-        if (command.includes("reset") && command.includes("filter")) {
-          resetFilters();
-        }
-        else if ((command.includes("select") || command.includes("remove")) && command.includes("from")) {
-          filterBy(command);
-        }
-        else if(command.includes("list worksheet")) {
-          listWorksheets();
-        }
-        else if (command.includes("summary table")) {
-          toggleSummaryTable(command);
+          if (command.includes("reset") && command.includes("filter")) {
+            resetFilters();
+          }
+          else if ((command.includes("select") || command.includes("remove")) && command.includes("from")) {
+            filterBy(command);
+          }
+          else if(command.includes("list worksheet")) {
+            listWorksheets();
+          }
+          else if (command.includes("summary table")) {
+            toggleSummaryTable(command);
+          }
+          else {
+            speak("Command not understood");
+          }
+          listening = false;
+          recognition.start();
         }
       }
 
