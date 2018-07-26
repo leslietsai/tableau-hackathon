@@ -55,15 +55,18 @@
         var command = event.results[last][0].transcript;
 
         if (listening == false) {
-          diagnostic.textContent = 'Result received: ' + command+ '.';
           if(command.includes("stuff")) {
             listening = true;
+            diagnostic.textContent = "Recording";
+            diagnostic.style.color = "red";
             speak("Listening");
+          }
+          else {
+            diagnostic.textContent = 'Result received: ' + command+ '.';
           }
           recognition.start();
         }
         else {
-          
           diagnostic.textContent = 'Result received: ' + command+ '.';
           //bg.style.backgroundcommand = command;
 
@@ -89,6 +92,7 @@
 
       recognition.onspeechend = function() {
         recognition.stop();
+        diagnostic.textContent = "<em>...click to activate listening...</em>";
         diagnostic.style.color = "black";
       }
 
