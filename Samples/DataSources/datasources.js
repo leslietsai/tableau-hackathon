@@ -37,7 +37,6 @@
         console.log('Ready to receive a command.');
         diagnostic.textContent = "Recording";
         diagnostic.style.color = "red";
-        
       } 
 
       recognition.onresult = function(event) {
@@ -113,9 +112,8 @@
         let filters = worksheet.getFiltersAsync().then(function(filters) {
           filters.forEach(function(filter) {
             var field = filter.fieldName;
-            promises.push(worksheet.clearFilterAsync(field));
-            
-        });
+            promises.push(worksheet.clearFilterAsync(field)); 
+          });
         });
       })
       Promise.all(promises).then(function(results){});
@@ -140,35 +138,41 @@
     var finalFieldName = [];
     fieldName.forEach(
       function(name){
-        finalFieldName.push(jsUcfirst(name))
+        finalFieldName.push(jsUcfirst(name));
       });
     finalFieldName = finalFieldName.join(" ");
 
     var finalValues = [];
-    filterItems.forEach(
-      function(value){
-        finalValues.push(jsUcfirst(value));
-      }
-    );
+    var word = "";
+    var i;
+    for (i in filterItems) {
+        var value = filterItems[i]
+        if (value != "and") {
+            word += jsUcfirst(value) + " ";
+        } else {
+            word = word.slice(0, -1);
+            finalValues.push(word);
+            word = "";
+        }
+    }
+    word = word.slice(0, -1);
+    finalValues.push(word);
 
     let promises = [];
       // To get dataSource info, first get the dashboard.
     const dashboard = tableau.extensions.dashboardContent.dashboard;
 
     dashboard.worksheets.forEach(function(worksheet) {
-    promises.push(worksheet.applyFilterAsync(finalFieldName,finalValues,updateType,false));
-
-    })
+      promises.push(worksheet.applyFilterAsync(finalFieldName,finalValues,updateType,false));
+    });
 
     Promise.all(promises).then(function(results){});
     if (updateTypeInput == "remove") {
         speak("removed " + finalValues + " from " + finalFieldName);
     }
-    if (updateTypeInput == "select") {
+    else if (updateTypeInput == "select") {
         speak("selected " + finalValues + " from " + finalFieldName);
     }
-    
-
   }
 
   function listWorksheets() {
@@ -182,47 +186,40 @@
       Promise.all(promises).then(function(results){});
   }
 
-   function summaryTable() {
+  function summaryTable() {
+    let summaryPromises = [];
+    // To get dataSource info, first get the dashboard.
+    const dashboard = tableau.extensions.dashboardContent.dashboard;
+    dashboard.worksheets.forEach(function(worksheet) {
+      summaryPromises.push(worksheet.getSummaryDataAsync());
+    });
 
-      let summaryPromises = [];
-      // To get dataSource info, first get the dashboard.
-      const dashboard = tableau.extensions.dashboardContent.dashboard;
-      dashboard.worksheets.forEach(function(worksheet) {
-        summaryPromises.push(worksheet.getSummaryDataAsync());
-      });
+    Promise.all(summaryPromises).then(function (fetchResults) {
+      fetchResults.forEach(function (dataTable) {
+        console.log(dataTable.name);
+        $("#summary-table").append("Table name: ", dataTable.name); 
+        $("#summary-table").append('<br> <table class="table"> <thead>');    
+        console.log(dataTable.data); 
+        for (var i = 0; i < dataTable.columns.length; i++) {
+            $("#summary-table").append('<th> ' + dataTable.columns[i]._fieldName + '</th>');     
+        }
 
-       Promise.all(summaryPromises).then(function (fetchResults) {
-        fetchResults.forEach(function (dataTable) {
+        $("#summary-table").append("</thead>   <tbody>"); 
 
-          console.log(dataTable.name);
-          $("#summary-table").append("Table name: ", dataTable.name); 
-          $("#summary-table").append('<br> <table class="table"> <thead>');    
-          console.log(dataTable.data); 
-          for (var i = 0; i < dataTable.columns.length; i++) {
-              $("#summary-table").append('<th> ' + dataTable.columns[i]._fieldName + '</th>');     
-          }
+        console.log(dataTable.data[0][0]);
+         for (var i = 0; i < dataTable.data.length; i++) {
+            $("#summary-table").append("<tr>"); 
 
-          $("#summary-table").append("</thead>   <tbody>"); 
-
-          console.log(dataTable.data[0][0]);
-           for (var i = 0; i < dataTable.data.length; i++) {
-              $("#summary-table").append("<tr>"); 
-
-              for (var j = 0; j < 7; j++) {
-                $("#summary-table").append('<td>'+  dataTable.data[i][j]._formattedValue + '</td>');     
+            for (var j = 0; j < 7; j++) {
+              $("#summary-table").append('<td>'+  dataTable.data[i][j]._formattedValue + '</td>');     
               $("#summary-table").append("</tr>"); 
-
-
             }
-          $("#summary-table").append('</thead>');    
 
+            $("#summary-table").append('</thead>');    
           }
-          });
         });
-      Promise.all(summaryPromises).then(function(results){});
-
-
-
+      });
+    Promise.all(summaryPromises).then(function(results){});
   }
 
   function toggleSummaryTable(string) {
@@ -234,7 +231,6 @@
     else {
       $("#summary-table").hide();
       speak("hiding table");
-
     }
   }
 
