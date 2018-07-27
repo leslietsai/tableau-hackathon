@@ -183,7 +183,6 @@
   }
 
    function summaryTable() {
-    console.log("Trying to log the summaryTable");
 
       let summaryPromises = [];
       // To get dataSource info, first get the dashboard.
